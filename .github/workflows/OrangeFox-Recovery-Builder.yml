@@ -147,12 +147,20 @@ jobs:
       run: |
         cd ${GITHUB_WORKSPACE}/OrangeFox/fox_${{ github.event.inputs.MANIFEST_BRANCH }}
         mkdir -p device/google/coral/prebuilt/kernel/include/uapi/scsi/ufs
-        echo '#ifndef _UAPI_UFS_IOCTL_H
-        #define _UAPI_UFS_IOCTL_H
-        #define UFS_IOCTL_QUERY 0
-        #endif' > device/google/coral/prebuilt/kernel/include/uapi/scsi/ufs/ioctl.h
+        cat <<'EOF' > device/google/coral/prebuilt/kernel/include/uapi/scsi/ufs/ioctl.h
+#ifndef _UAPI_UFS_IOCTL_H
+#define _UAPI_UFS_IOCTL_H
+#define UFS_IOCTL_QUERY 0
+#endif
+EOF
         echo "=== Debug: List Dummy Header ==="
         ls -R device/google/coral/prebuilt/kernel/include/uapi/scsi/ufs
+
+    - name: Export Extra Include Path for Dummy Headers
+      run: |
+        echo "Adding extra include path for dummy headers..."
+        export CFLAGS="-I${GITHUB_WORKSPACE}/OrangeFox/fox_${{ github.event.inputs.MANIFEST_BRANCH }}/device/google/coral/prebuilt/kernel/include $CFLAGS"
+        echo "CFLAGS=$CFLAGS" >> $GITHUB_ENV
   
     - name: Check Manifest Branch
       uses: haya14busa/action-cond@v1
