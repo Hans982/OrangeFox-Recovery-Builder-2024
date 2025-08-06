@@ -112,6 +112,7 @@ jobs:
         cd ${GITHUB_WORKSPACE}/OrangeFox/fox_${{ github.event.inputs.MANIFEST_BRANCH }}
         git clone --depth=1 -b lineage-19.1 https://github.com/LineageOS/android_hardware_google_pixel hardware/google/pixel
         git clone --depth=1 -b lineage-19.1 https://github.com/LineageOS/android_hardware_google_pixel-sepolicy hardware/google/pixel-sepolicy
+        git clone --depth=1 -b lineage-19.1 https://github.com/LineageOS/android_hardware_google_interfaces hardware/google/interfaces
         git clone --depth=1 -b android12L-release https://android.googlesource.com/device/google/coral-sepolicy device/google/coral-sepolicy
 
     - name: Check Manifest Branch
