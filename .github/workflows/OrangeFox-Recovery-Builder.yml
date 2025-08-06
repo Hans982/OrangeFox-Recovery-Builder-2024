@@ -115,14 +115,25 @@ jobs:
         git clone --depth=1 -b android12L-release https://android.googlesource.com/platform/hardware/google/interfaces hardware/google/interfaces
         git clone --depth=1 -b android12L-release https://android.googlesource.com/device/google/coral-sepolicy device/google/coral-sepolicy
   
-    - name: Download & Extract Pixel 4 Kernel
+    - name: Download & Extract Pixel 4 Kernel + DTB
       run: |
         cd ${GITHUB_WORKSPACE}/OrangeFox/fox_${{ github.event.inputs.MANIFEST_BRANCH }}
         mkdir -p ${{ github.event.inputs.DEVICE_PATH }}/prebuilt/kernel
+
+        # 1. Download factory image
         curl -L -o flame-factory.zip https://dl.google.com/dl/android/aosp/flame-sq3a.220705.003.a1-factory-fdd77628.zip
         unzip -o flame-factory.zip
+
+        # 2. Extract boot.img from factory image
         unzip -j flame-sq3a.220705.003.a1/image-flame-*.zip boot.img -d ${{ github.event.inputs.DEVICE_PATH }}/prebuilt/kernel
         mv ${{ github.event.inputs.DEVICE_PATH }}/prebuilt/kernel/boot.img ${{ github.event.inputs.DEVICE_PATH }}/prebuilt/kernel/kernel
+
+        # 3. Install extract-dtb
+        pip install extract-dtb
+
+        # 4. Extract dtb from boot.img
+        extract-dtb ${{ github.event.inputs.DEVICE_PATH }}/prebuilt/kernel/kernel -o ${{ github.event.inputs.DEVICE_PATH }}/prebuilt/kernel/
+        mv ${{ github.event.inputs.DEVICE_PATH }}/prebuilt/kernel/*.dtb ${{ github.event.inputs.DEVICE_PATH }}/prebuilt/kernel/dtb.img || true
 
     - name: Check Manifest Branch
       uses: haya14busa/action-cond@v1
