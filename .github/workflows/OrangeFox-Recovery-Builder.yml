@@ -134,7 +134,15 @@ jobs:
         # 4. Extract dtb from boot.img
         extract-dtb ${{ github.event.inputs.DEVICE_PATH }}/prebuilt/kernel/kernel -o ${{ github.event.inputs.DEVICE_PATH }}/prebuilt/kernel/
         mv ${{ github.event.inputs.DEVICE_PATH }}/prebuilt/kernel/*.dtb ${{ github.event.inputs.DEVICE_PATH }}/prebuilt/kernel/dtb.img || true
-        
+
+    - name: Bypass Kernel Headers
+      run: |
+        cd ${GITHUB_WORKSPACE}/OrangeFox/fox_${{ github.event.inputs.MANIFEST_BRANCH }}
+        mkdir -p kernel/google/msm-4.14
+        echo -e 'headers_install:\n\t@echo "Skipping headers_install for prebuilt kernel"' > kernel/google/msm-4.14/Makefile
+        echo "=== Debug: List Dummy Kernel Dir ==="
+        ls -l kernel/google/msm-4.14
+      
     - name: Check Manifest Branch
       uses: haya14busa/action-cond@v1
       id: fox_branch
