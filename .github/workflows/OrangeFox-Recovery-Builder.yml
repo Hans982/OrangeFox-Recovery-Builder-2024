@@ -110,8 +110,8 @@ jobs:
     - name: Clone Pixel 4 Dependencies
       run: |
         cd ${GITHUB_WORKSPACE}/OrangeFox/fox_${{ github.event.inputs.MANIFEST_BRANCH }}
-        git clone --depth=1 -b android-12.1 https://github.com/TeamWin/android_hardware_google_pixel hardware/google/pixel
-        git clone --depth=1 -b android-12.1 https://github.com/TeamWin/android_hardware_google_pixel-sepolicy hardware/google/pixel-sepolicy
+        git clone --depth=1 -b lineage-19.1 https://github.com/LineageOS/android_hardware_google_pixel hardware/google/pixel
+        git clone --depth=1 -b lineage-19.1 https://github.com/LineageOS/android_hardware_google_pixel-sepolicy hardware/google/pixel-sepolicy
 
     - name: Check Manifest Branch
       uses: haya14busa/action-cond@v1
