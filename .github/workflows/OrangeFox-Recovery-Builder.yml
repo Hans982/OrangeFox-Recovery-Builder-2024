@@ -121,10 +121,11 @@ jobs:
         git clone --depth=1 https://github.com/TeamWin/android_kernel_google_msm-4.14 \
         -b android-12.1 kernel/google/msm-4.14
 
-    - name: Copy UFS ioctl.h Header
-      run: |
-        cp ${GITHUB_WORKSPACE}/OrangeFox/fox_${{ github.event.inputs.MANIFEST_BRANCH }}/kernel/google/msm-4.14/include/uapi/scsi/ufs/ioctl.h \
-        ${GITHUB_WORKSPACE}/OrangeFox/fox_${{ github.event.inputs.MANIFEST_BRANCH }}/device/google/coral/include/scsi/ufs/ioctl.h
+    - name: Make sure target include dir exists
+      run: mkdir -p ${GITHUB_WORKSPACE}/OrangeFox/fox_12.1/device/google/coral/include/scsi/ufs
+
+    - name: Copy ufs ioctl.h header
+      run: cp ${GITHUB_WORKSPACE}/OrangeFox/fox_12.1/kernel/google/msm-4.14/include/uapi/scsi/ufs/ioctl.h ${GITHUB_WORKSPACE}/OrangeFox/fox_12.1/device/google/coral/include/scsi/ufs/ioctl.h
        
     - name: Check Manifest Branch
       uses: haya14busa/action-cond@v1
