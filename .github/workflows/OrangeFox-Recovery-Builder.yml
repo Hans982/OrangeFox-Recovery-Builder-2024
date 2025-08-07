@@ -114,53 +114,18 @@ jobs:
         git clone --depth=1 -b lineage-19.1 https://github.com/LineageOS/android_hardware_google_pixel-sepolicy hardware/google/pixel-sepolicy
         git clone --depth=1 -b android12L-release https://android.googlesource.com/platform/hardware/google/interfaces hardware/google/interfaces
         git clone --depth=1 -b android12L-release https://android.googlesource.com/device/google/coral-sepolicy device/google/coral-sepolicy
-  
-    - name: Download & Extract Pixel 4 Kernel + DTB
+
+    - name: Clone Kernel Source
       run: |
         cd ${GITHUB_WORKSPACE}/OrangeFox/fox_${{ github.event.inputs.MANIFEST_BRANCH }}
-        mkdir -p ${{ github.event.inputs.DEVICE_PATH }}/prebuilt/kernel
+        git clone --depth=1 https://github.com/TeamWin/android_kernel_google_msm-4.14 \
+        -b android-12.1 kernel/google/msm-4.14
 
-        # 1. Download factory image
-        curl -L -o flame-factory.zip https://dl.google.com/dl/android/aosp/flame-sq3a.220705.003.a1-factory-fdd77628.zip
-        unzip -o flame-factory.zip
-
-        # 2. Extract boot.img from factory image
-        unzip -j flame-sq3a.220705.003.a1/image-flame-*.zip boot.img -d ${{ github.event.inputs.DEVICE_PATH }}/prebuilt/kernel
-        mv ${{ github.event.inputs.DEVICE_PATH }}/prebuilt/kernel/boot.img ${{ github.event.inputs.DEVICE_PATH }}/prebuilt/kernel/kernel
-
-        # 3. Install extract-dtb
-        pip install extract-dtb
-
-        # 4. Extract dtb from boot.img
-        extract-dtb ${{ github.event.inputs.DEVICE_PATH }}/prebuilt/kernel/kernel -o ${{ github.event.inputs.DEVICE_PATH }}/prebuilt/kernel/
-        mv ${{ github.event.inputs.DEVICE_PATH }}/prebuilt/kernel/*.dtb ${{ github.event.inputs.DEVICE_PATH }}/prebuilt/kernel/dtb.img || true
-
-    - name: Bypass Kernel Headers
+    - name: Copy UFS ioctl.h Header
       run: |
-        cd ${GITHUB_WORKSPACE}/OrangeFox/fox_${{ github.event.inputs.MANIFEST_BRANCH }}
-        mkdir -p kernel/google/msm-4.14
-        echo -e 'headers_install:\n\t@echo "Skipping headers_install for prebuilt kernel"' > kernel/google/msm-4.14/Makefile
-        echo "=== Debug: List Dummy Kernel Dir ==="
-        ls -l kernel/google/msm-4.14
-
-    - name: Add Dummy UFS Header
-      run: |
-        cd ${GITHUB_WORKSPACE}/OrangeFox/fox_${{ github.event.inputs.MANIFEST_BRANCH }}
-        mkdir -p device/google/coral/prebuilt/kernel/include/uapi/scsi/ufs
-        echo "#ifndef _UAPI_UFS_IOCTL_H" > device/google/coral/prebuilt/kernel/include/uapi/scsi/ufs/ioctl.h
-        echo "#define _UAPI_UFS_IOCTL_H" >> device/google/coral/prebuilt/kernel/include/uapi/scsi/ufs/ioctl.h
-        echo "#define UFS_IOCTL_QUERY 0" >> device/google/coral/prebuilt/kernel/include/uapi/scsi/ufs/ioctl.h
-        echo "#endif" >> device/google/coral/prebuilt/kernel/include/uapi/scsi/ufs/ioctl.h
-
-        echo "=== Debug: List Dummy Header ==="
-        ls -R device/google/coral/prebuilt/kernel/include/uapi/scsi/ufs
-
-    - name: Export Extra Include Path for Dummy Headers
-      run: |
-        echo "Adding extra include path for dummy headers..."
-        export CFLAGS="-I${GITHUB_WORKSPACE}/OrangeFox/fox_${{ github.event.inputs.MANIFEST_BRANCH }}/device/google/coral/prebuilt/kernel/include $CFLAGS"
-        echo "CFLAGS=$CFLAGS" >> $GITHUB_ENV
-  
+        cp ${GITHUB_WORKSPACE}/OrangeFox/fox_${{ github.event.inputs.MANIFEST_BRANCH }}/kernel/google/msm-4.14/include/uapi/scsi/ufs/ioctl.h \
+        ${GITHUB_WORKSPACE}/OrangeFox/fox_${{ github.event.inputs.MANIFEST_BRANCH }}/device/google/coral/include/scsi/ufs/ioctl.h
+       
     - name: Check Manifest Branch
       uses: haya14busa/action-cond@v1
       id: fox_branch
